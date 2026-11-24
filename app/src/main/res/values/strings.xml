@@ -1,0 +1,272 @@
+<resources>
+    <string name="app_name">P Guard</string>
+    <string name="app_offline_badge">On-device</string>
+    <string name="app_version_format">v%1$s</string>
+
+    <!-- Dashboard -->
+    <string name="last_scan_label">Last scan: %1$s</string>
+    <string name="last_scan_never">Last scan: Not yet run</string>
+    <string name="last_scan_scanning">Scanning device…</string>
+    <string name="action_scan_again">Scan again</string>
+    <string name="action_scanning">Scanning…</string>
+
+    <string name="status_all_clear">All clear</string>
+    <string name="status_scanning_title">Checking installed apps…</string>
+    <string name="status_scanning_subtitle">Running local security analysis off the main thread</string>
+    <string name="status_all_clear_baseline">Baseline recorded · %1$d apps indexed</string>
+    <string name="status_all_clear_monitored">No suspicious or new apps · %1$d apps monitored</string>
+    <string name="status_attention_single">1 item needs attention</string>
+    <string name="status_attention_plural">%1$d items need attention</string>
+    <string name="status_attention_breakdown_both">%1$d suspicious · %2$d new since last open</string>
+    <string name="status_attention_breakdown_suspicious_single">1 suspicious app flagged for review</string>
+    <string name="status_attention_breakdown_suspicious_plural">%1$d suspicious apps flagged for review</string>
+    <string name="status_attention_breakdown_new_single">1 newly installed app waiting for review</string>
+    <string name="status_attention_breakdown_new_plural">%1$d newly installed apps waiting for review</string>
+    <string name="status_attention_part_suspicious_single">1 suspicious app</string>
+    <string name="status_attention_part_suspicious_plural">%1$d suspicious apps</string>
+    <string name="status_attention_part_new_single">1 new app</string>
+    <string name="status_attention_part_new_plural">%1$d new apps</string>
+    <string name="status_attention_part_usb_debugging">USB Debugging ON</string>
+
+    <string name="section_active_checks">Security checks</string>
+    <string name="section_coming_soon">Coming soon</string>
+    <string name="badge_coming_soon">Coming soon</string>
+
+    <!-- Active module: New apps -->
+    <string name="module_new_apps_title">New apps since last open</string>
+    <string name="module_new_apps_empty_subtitle">No new apps detected across %1$d installed packages</string>
+    <string name="module_new_apps_baseline_subtitle">Initial snapshot saved (%1$d packages)</string>
+    <string name="module_new_apps_found_single">1 newly installed app waiting for review</string>
+    <string name="module_new_apps_found_plural">%1$d newly installed apps waiting for review</string>
+    <string name="badge_none_new">0 new</string>
+    <string name="badge_new_count">%1$d new</string>
+
+    <!-- Active module: Suspicious apps -->
+    <string name="module_suspicious_apps_title">Suspicious apps</string>
+    <string name="module_suspicious_apps_desc">Flag sideloaded, hidden, or high-risk packages</string>
+    <string name="module_suspicious_empty_subtitle">No untrusted suspicious apps detected</string>
+    <string name="module_suspicious_found_single">1 app flagged · %2$d trusted</string>
+    <string name="module_suspicious_found_plural">%1$d apps flagged · %2$d trusted</string>
+    <string name="module_suspicious_found_single_no_trusted">1 untrusted app flagged for review</string>
+    <string name="module_suspicious_found_plural_no_trusted">%1$d untrusted apps flagged for review</string>
+    <string name="badge_flagged_count">%1$d flagged</string>
+    <string name="badge_none_flagged">0 flagged</string>
+
+    <!-- Active module: Hidden apps -->
+    <string name="module_hidden_apps_title">Hidden apps</string>
+    <string name="module_hidden_apps_desc">User-installed apps without a launcher icon</string>
+    <string name="module_hidden_empty_subtitle">No hidden user apps detected</string>
+    <string name="module_hidden_found_single">1 user app has no launcher icon</string>
+    <string name="module_hidden_found_plural">%1$d user apps have no launcher icon</string>
+    <string name="badge_hidden_count">%1$d hidden</string>
+
+    <!-- Active module: Sensitive access -->
+    <string name="module_sensitive_access_title">Sensitive access</string>
+    <string name="module_sensitive_access_desc">Accessibility, device admins, and notification listeners</string>
+    <string name="module_sensitive_empty_subtitle">No elevated special access services active</string>
+    <string name="module_sensitive_found_single">1 active special access grant</string>
+    <string name="module_sensitive_found_plural">%1$d active special access grants</string>
+    <string name="badge_active_count">%1$d active</string>
+
+    <!-- Active module: Recently active apps -->
+    <string name="module_recently_active_title">Recently active apps</string>
+    <string name="module_recently_active_desc">Inspect recent foreground and background activity</string>
+    <string name="module_recently_active_needs_access">Grant Usage Access to see recent app activity</string>
+    <string name="module_recently_active_empty">No app activity recorded in the last hour</string>
+    <string name="module_recently_active_single">1 app active in the last hour</string>
+    <string name="module_recently_active_plural">%1$d apps active in the last hour</string>
+    <string name="badge_grant_access">Setup</string>
+
+    <!-- Active module: Developer mode -->
+    <string name="module_developer_mode_title">Developer mode</string>
+    <string name="module_developer_mode_desc">Check USB debugging and developer options state</string>
+    <string name="module_dev_mode_adb_on">Developer Options ON · USB Debugging ON</string>
+    <string name="module_dev_mode_dev_on">Developer Options ON · USB Debugging OFF</string>
+    <string name="module_dev_mode_off">Developer Options OFF · USB Debugging OFF</string>
+    <string name="badge_adb_on">ADB ON</string>
+    <string name="badge_dev_on">Dev ON</string>
+    <string name="badge_off">Off</string>
+
+    <!-- Trusted apps entry -->
+    <string name="module_trusted_apps_title">Trusted apps</string>
+    <string name="module_trusted_apps_subtitle_empty">No apps marked as trusted yet</string>
+    <string name="module_trusted_apps_subtitle_single">1 app muted from suspicious warnings</string>
+    <string name="module_trusted_apps_subtitle_plural">%1$d apps muted from suspicious warnings</string>
+    <string name="badge_trusted_count">%1$d trusted</string>
+
+    <!-- Common navigation & accessibility -->
+    <string name="new_apps_screen_title">New apps</string>
+    <string name="suspicious_screen_title">Suspicious apps</string>
+    <string name="hidden_screen_title">Hidden apps</string>
+    <string name="sensitive_screen_title">Sensitive access</string>
+    <string name="recently_active_screen_title">Recently active apps</string>
+    <string name="developer_mode_screen_title">Developer mode</string>
+    <string name="trusted_screen_title">Trusted apps</string>
+    <string name="app_detail_screen_title">App details</string>
+
+    <!-- Recently active apps screen -->
+    <string name="usage_window_15m">15 min</string>
+    <string name="usage_window_1h">1 hour</string>
+    <string name="usage_window_24h">24 hours</string>
+    <string name="usage_permission_title">Usage Access required</string>
+    <string name="usage_permission_body">Android restricts apps from inspecting background processes directly. Granting Usage Access lets P Guard read which apps were recently active and how long they ran in the foreground — strictly on your phone.</string>
+    <string name="action_grant_usage_access">Open Usage Access settings</string>
+    <string name="section_foreground_services">Active foreground services</string>
+    <string name="section_recent_apps_list">Recently active apps</string>
+    <string name="badge_foreground_service">Foreground service</string>
+    <string name="meta_last_used_on">Last used: %1$s</string>
+    <string name="meta_foreground_time">Foreground: %1$s</string>
+    <string name="empty_recent_apps_title">No recent app activity</string>
+    <string name="empty_recent_apps_body">No apps recorded foreground or service activity during the selected time window.</string>
+
+    <!-- Developer mode screen -->
+    <string name="dev_row_developer_options">Developer Options</string>
+    <string name="dev_row_usb_debugging">USB Debugging</string>
+    <string name="status_on">ON</string>
+    <string name="status_off">OFF</string>
+    <string name="dev_usb_warning_title">USB Debugging is enabled</string>
+    <string name="dev_usb_warning_body">Leaving USB Debugging on allows ADB commands and data extraction if your phone is connected to an untrusted computer or cable. Turn it off when you are not developing.</string>
+    <string name="action_open_developer_options">Open Developer Options</string>
+    <string name="action_turn_on_developer_mode">Turn on Developer Mode</string>
+    <string name="dev_mode_enable_tip">Tap Build number 7 times (on Samsung: Software information → Build number).</string>
+    <string name="dev_mode_android_note">Android doesn\'t allow apps to change this directly, so P Guard takes you to the right screen.</string>
+
+    <string name="detail_label_last_used">Last used</string>
+    <string name="detail_last_used_unknown">Not used recently</string>
+
+    <string name="cd_navigate_back">Navigate back</string>
+    <string name="cd_scan_again">Run a new package scan</string>
+    <string name="cd_open_new_apps">Open new apps details</string>
+    <string name="cd_open_module">Open %1$s</string>
+    <string name="cd_app_icon">Icon for %1$s</string>
+    <string name="cd_shield_status">Security status icon</string>
+    <string name="cd_open_system_settings">Open Android settings for this section</string>
+    <string name="cd_clear_search">Clear search</string>
+
+    <!-- Search & Sort -->
+    <string name="search_packages_placeholder">Search by app or package name</string>
+    <string name="sort_label">Sort:</string>
+    <string name="sort_name">Name</string>
+    <string name="sort_install_date">Install date</string>
+    <string name="sort_risk">Risk</string>
+    <string name="empty_search_results">No apps match your search</string>
+
+    <!-- Risk levels & reasons -->
+    <string name="risk_high">High risk</string>
+    <string name="risk_medium">Medium risk</string>
+    <string name="risk_low">Low risk</string>
+    <string name="risk_none">Clear</string>
+
+    <string name="reason_sideloaded_with_source">Sideloaded · %1$s</string>
+    <string name="reason_risky_permissions_single">1 risky permission</string>
+    <string name="reason_risky_permissions_plural">%1$d risky permissions</string>
+    <string name="reason_hidden_no_launcher">No launcher icon</string>
+    <string name="reason_accessibility_enabled">Accessibility enabled</string>
+    <string name="reason_device_admin_enabled">Device admin</string>
+    <string name="reason_notification_listener_enabled">Notification listener</string>
+    <string name="reason_recent_high_perms">Installed &lt;7d · %1$d+ perms</string>
+
+    <!-- Risky permission display names -->
+    <string name="perm_camera">Camera</string>
+    <string name="perm_microphone">Microphone</string>
+    <string name="perm_fine_location">Fine location</string>
+    <string name="perm_sms">SMS read/send</string>
+    <string name="perm_call_log">Call log</string>
+    <string name="perm_contacts">Contacts</string>
+    <string name="perm_phone_state">Read phone state</string>
+    <string name="perm_overlay">Display over apps</string>
+    <string name="perm_install_unknown">Install unknown apps</string>
+
+    <!-- Suspicious apps screen -->
+    <string name="action_mark_trusted">Mark as trusted</string>
+    <string name="action_remove_trusted">Remove trust</string>
+    <string name="action_manage_trusted">Trusted (%1$d)</string>
+    <string name="empty_suspicious_title">No suspicious apps flagged</string>
+    <string name="empty_suspicious_body">None of your untrusted installed apps matched sideloading, hidden icon, elevated access, or risky permission checks.</string>
+
+    <!-- Trusted apps screen -->
+    <string name="action_remove_from_trusted">Remove</string>
+    <string name="meta_trusted_on">Trusted %1$s</string>
+    <string name="empty_trusted_title">No trusted apps</string>
+    <string name="empty_trusted_body">When you mark a flagged app as trusted, it appears here and stops triggering dashboard warnings.</string>
+
+    <!-- Hidden apps screen -->
+    <string name="toggle_include_system_apps">Include system apps</string>
+    <string name="empty_hidden_title">No hidden apps found</string>
+    <string name="empty_hidden_body">Every user-installed app on your phone exposes a normal launcher icon.</string>
+    <string name="empty_hidden_all_body">No installed apps without a launcher icon match your search.</string>
+
+    <!-- Sensitive access screen -->
+    <string name="sensitive_section_accessibility">Accessibility services enabled</string>
+    <string name="sensitive_why_accessibility">Can read screen content, capture keystrokes, and act on your behalf — a common spyware vector.</string>
+    <string name="sensitive_section_device_admin">Active device admins</string>
+    <string name="sensitive_why_device_admin">Can lock or wipe your device and prevent uninstallation — often abused by stalkerware.</string>
+    <string name="sensitive_section_notification_listener">Notification listener access</string>
+    <string name="sensitive_why_notification_listener">Can read all incoming notifications including 2FA codes and private messages.</string>
+    <string name="sensitive_none_enabled">None currently enabled</string>
+    <string name="action_open_settings">Settings</string>
+
+    <!-- App Detail screen -->
+    <string name="detail_section_risk_reasons">Why it was flagged</string>
+    <string name="detail_section_special_access">Special access</string>
+    <string name="detail_section_risky_permissions">Risky permissions</string>
+    <string name="detail_section_package_info">Package details</string>
+    <string name="detail_special_accessibility">Accessibility service</string>
+    <string name="detail_special_device_admin">Device administrator</string>
+    <string name="detail_special_notification_listener">Notification listener</string>
+    <string name="detail_special_overlay">Overlay (Display over apps)</string>
+    <string name="detail_status_enabled">Enabled</string>
+    <string name="detail_status_requested">Requested / Allowed</string>
+    <string name="detail_status_not_enabled">Not enabled</string>
+    <string name="detail_no_risky_permissions">No risky permissions detected</string>
+    <string name="detail_trusted_banner">This app is marked as trusted and excluded from dashboard warnings.</string>
+    <string name="detail_label_installer">Install source</string>
+    <string name="detail_label_installed">Installed</string>
+    <string name="detail_label_updated">Last updated</string>
+    <string name="detail_label_version">Version</string>
+    <string name="detail_label_launcher">Launcher icon</string>
+    <string name="detail_launcher_visible">Visible in launcher</string>
+    <string name="detail_launcher_hidden">Hidden (no launcher activity)</string>
+    <string name="detail_app_not_found">App details are not available in the latest scan snapshot.</string>
+
+    <!-- New apps detail screen -->
+    <string name="tab_new_apps">New (%1$d)</string>
+    <string name="tab_all_installed">Snapshot (%1$d)</string>
+
+    <string name="action_mark_all_reviewed">Mark all reviewed</string>
+    <string name="action_mark_reviewed">Mark reviewed</string>
+    <string name="action_app_info">App info</string>
+    <string name="action_clear_history">Clear history</string>
+
+    <string name="section_needs_review">Needs review</string>
+    <string name="section_previously_reviewed">Previously reviewed</string>
+
+    <string name="empty_new_apps_title">No new apps since last open</string>
+    <string name="empty_new_apps_baseline_body">Your initial baseline of %1$d installed packages has been saved locally. Any apps installed before your next scan will appear here.</string>
+    <string name="empty_new_apps_monitored_body">All %1$d installed packages match your last saved snapshot. Tap Scan again anytime after installing apps.</string>
+
+    <string name="meta_installed_on">Installed %1$s</string>
+    <string name="meta_detected_on">Detected %1$s</string>
+    <string name="meta_source_label">Source: %1$s</string>
+    <string name="meta_version_label">v%1$s</string>
+    <string name="badge_user_app">User app</string>
+    <string name="badge_system_app">System</string>
+    <string name="badge_uninstalled">Removed</string>
+    <string name="badge_reviewed">Reviewed</string>
+    <string name="badge_trusted">Trusted</string>
+
+    <string name="installer_google_play">Google Play</string>
+    <string name="installer_p_store">P Store</string>
+    <string name="installer_package_installer">Package Installer (Sideloaded)</string>
+    <string name="installer_amazon">Amazon Appstore</string>
+    <string name="installer_samsung">Samsung Galaxy Store</string>
+    <string name="installer_fdroid">F-Droid</string>
+    <string name="installer_adb">ADB / Shell</string>
+    <string name="installer_system">System / Pre-installed</string>
+    <string name="installer_unknown">Unknown source</string>
+
+    <string name="filter_all_apps">All</string>
+    <string name="filter_user_apps">User apps</string>
+    <string name="filter_system_apps">System</string>
+    <string name="scan_error_message">Could not complete scan. Tap Scan again to retry.</string>
+</resources>

@@ -1,0 +1,6 @@
+{
+  "name": "P Guard",
+  "description": "Personal on-device Android security scanner that tracks installed package snapshots and flags newly installed apps.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
