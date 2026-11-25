@@ -2,6 +2,7 @@ package com.example.ui.common
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.provider.Settings
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -53,7 +54,8 @@ fun sortAssessments(
             .thenBy { it.snapshot.appName.lowercase() }
     )
     AppSortOption.RISK -> items.sortedWith(
-        compareByDescending<AppSecurityAssessment> { it.riskLevel.sortOrder }
+        compareByDescending<AppSecurityAssessment> { it.hasSignatureChanged }
+            .thenByDescending { it.riskLevel.sortOrder }
             .thenByDescending { it.riskScore }
             .thenBy { it.snapshot.appName.lowercase() }
     )
@@ -251,6 +253,8 @@ fun SuspiciousReasonChips(
     ) {
         reasons.forEach { reason ->
             val (label, isHighSeverity) = when (reason) {
+                SuspiciousReason.SignatureChanged ->
+                    stringResource(R.string.reason_signature_changed) to true
                 is SuspiciousReason.Sideloaded -> {
                     val source = formatInstallerSource(reason.installerPackageName, isSystemApp = false)
                     stringResource(R.string.reason_sideloaded_with_source, source) to false
@@ -350,6 +354,80 @@ fun openDeveloperOptionsSettings(context: Context) {
 
 fun openDeviceInfoSettings(context: Context) {
     launchSettingsIntent(context, Settings.ACTION_DEVICE_INFO_SETTINGS)
+}
+
+fun openInputMethodSettings(context: Context) {
+    launchSettingsIntent(context, Settings.ACTION_INPUT_METHOD_SETTINGS)
+}
+
+fun openSecuritySettings(context: Context) {
+    launchSettingsIntent(context, Settings.ACTION_SECURITY_SETTINGS)
+}
+
+fun openUnknownAppSourcesSettings(context: Context) {
+    val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+    try {
+        context.startActivity(intent)
+    } catch (_: Exception) {
+        launchSettingsIntent(context, Settings.ACTION_SECURITY_SETTINGS)
+    }
+}
+
+fun openPrivacyDashboard(context: Context) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        val reviewIntent = Intent("android.intent.action.REVIEW_PERMISSION_USAGE").apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        try {
+            context.startActivity(reviewIntent)
+            return
+        } catch (_: Exception) {
+            // Fallback for devices like Samsung One UI where REVIEW_PERMISSION_USAGE is restricted
+        }
+        try {
+            context.startActivity(
+                Intent(Settings.ACTION_PRIVACY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+            return
+        } catch (_: Exception) {
+            // Fallback to application settings
+        }
+    }
+    launchSettingsIntent(context, Settings.ACTION_APPLICATION_SETTINGS)
+}
+
+fun openBatteryOptimizationSettings(context: Context) {
+    launchSettingsIntent(context, Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+}
+
+fun openAppNotificationSettings(context: Context) {
+    val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+        putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+    try {
+        context.startActivity(intent)
+    } catch (_: Exception) {
+        launchSettingsIntent(context, Settings.ACTION_APPLICATION_SETTINGS)
+    }
+}
+
+fun sharePdfReport(context: Context, pdfUri: android.net.Uri, chooserTitle: String) {
+    val shareIntent = Intent(Intent.ACTION_SEND).apply {
+        type = "application/pdf"
+        putExtra(Intent.EXTRA_STREAM, pdfUri)
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    }
+    val chooser = Intent.createChooser(shareIntent, chooserTitle).apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+    try {
+        context.startActivity(chooser)
+    } catch (_: Exception) {
+        // Ignore if no share handler exists
+    }
 }
 
 private fun launchSettingsIntent(context: Context, action: String) {

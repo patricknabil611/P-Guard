@@ -1,6 +1,10 @@
 package com.example.ui.detail
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,7 +28,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.AccessibilityNew
 import androidx.compose.material.icons.outlined.AdminPanelSettings
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Layers
 import androidx.compose.material.icons.outlined.NotificationsActive
@@ -39,14 +46,23 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -57,15 +73,22 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.R
+import com.example.data.scanner.AppBackgroundDataUsage
 import com.example.data.scanner.AppSecurityAssessment
+import com.example.data.scanner.NetworkUsageScanner
+import com.example.security.BiometricAuthHelper
 import com.example.ui.common.AppPackageIcon
 import com.example.ui.common.RiskLevelBadge
 import com.example.ui.common.SuspiciousReasonChips
+import com.example.ui.common.formatBytes
 import com.example.ui.common.formatInstallerSource
 import com.example.ui.common.formatScanDateTime
+import com.example.ui.common.formatShortCertFingerprint
 import com.example.ui.common.openAppInfoSettings
 import com.example.ui.common.riskyPermissionLabel
 import com.example.ui.theme.PGuardTheme
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -75,6 +98,11 @@ fun AppDetailScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val trustTitle = stringResource(R.string.biometric_trust_app_title)
+    val biometricUnavailableMsg = stringResource(R.string.biometric_unavailable_message)
+    val biometricFailedMsg = stringResource(R.string.biometric_auth_failed)
 
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         viewModel.refreshUsageInfo()
@@ -83,6 +111,7 @@ fun AppDetailScreen(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         contentWindowInsets = WindowInsets.safeDrawing,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -146,7 +175,35 @@ fun AppDetailScreen(
                         assessment = assessment,
                         hasUsageAccess = uiState.hasUsageAccess,
                         lastUsedMillis = uiState.lastUsedMillis,
-                        onToggleTrusted = viewModel::onToggleTrusted,
+                        backgroundData24h = uiState.backgroundData24h,
+                        onToggleTrusted = {
+                            val isCurrentlyTrusted = assessment.isTrusted && !assessment.hasSignatureChanged
+                            if (isCurrentlyTrusted) {
+                                viewModel.onToggleTrusted()
+                            } else {
+                                val activity = BiometricAuthHelper.findFragmentActivity(context)
+                                if (activity == null || !BiometricAuthHelper.canAuthenticate(context)) {
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(biometricUnavailableMsg)
+                                    }
+                                } else {
+                                    BiometricAuthHelper.authenticate(
+                                        activity = activity,
+                                        title = trustTitle,
+                                        subtitle = context.getString(
+                                            R.string.biometric_trust_app_subtitle,
+                                            assessment.snapshot.appName
+                                        ),
+                                        onSuccess = viewModel::onToggleTrusted,
+                                        onFailure = {
+                                            scope.launch {
+                                                snackbarHostState.showSnackbar(biometricFailedMsg)
+                                            }
+                                        }
+                                    )
+                                }
+                            }
+                        },
                         onOpenAppInfo = {
                             openAppInfoSettings(context, assessment.snapshot.packageName)
                         }
@@ -163,11 +220,21 @@ private fun AppDetailContent(
     assessment: AppSecurityAssessment,
     hasUsageAccess: Boolean,
     lastUsedMillis: Long?,
+    backgroundData24h: AppBackgroundDataUsage?,
     onToggleTrusted: () -> Unit,
     onOpenAppInfo: () -> Unit
 ) {
     val pkg = assessment.snapshot
     val semantic = PGuardTheme.semanticColors
+    val context = LocalContext.current
+    var copiedFingerprint by remember(pkg.signingCertSha256) { mutableStateOf(false) }
+
+    LaunchedEffect(copiedFingerprint) {
+        if (copiedFingerprint) {
+            delay(2_000L)
+            copiedFingerprint = false
+        }
+    }
 
     LazyColumn(
         modifier = Modifier
@@ -300,7 +367,38 @@ private fun AppDetailContent(
             }
         }
 
-        if (assessment.isTrusted) {
+        if (assessment.hasSignatureChanged) {
+            item(key = "signature_changed_banner") {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("detail_signature_changed_banner"),
+                    shape = MaterialTheme.shapes.medium,
+                    color = semantic.statusDangerContainer,
+                    border = BorderStroke(1.dp, semantic.statusDangerBorder)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.ErrorOutline,
+                            contentDescription = null,
+                            tint = semantic.statusDanger,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Text(
+                            text = stringResource(R.string.detail_signature_changed_banner),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = semantic.onStatusDangerContainer
+                        )
+                    }
+                }
+            }
+        } else if (assessment.isTrusted) {
             item(key = "trusted_banner") {
                 Surface(
                     modifier = Modifier
@@ -461,6 +559,25 @@ private fun AppDetailContent(
                                 stringResource(R.string.detail_last_used_unknown)
                             }
                         )
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                        val bgBytes = backgroundData24h?.totalBackgroundBytes ?: 0L
+                        val isHighBg = !assessment.isTrusted &&
+                            bgBytes > NetworkUsageScanner.HIGH_BACKGROUND_DATA_24H_BYTES
+                        val bgValue = if (backgroundData24h != null && bgBytes > 0L) {
+                            stringResource(
+                                R.string.detail_bg_data_split,
+                                formatBytes(bgBytes),
+                                formatBytes(backgroundData24h.mobileBackgroundBytes),
+                                formatBytes(backgroundData24h.wifiBackgroundBytes)
+                            )
+                        } else {
+                            stringResource(R.string.detail_bg_data_none)
+                        }
+                        InfoRow(
+                            label = stringResource(R.string.detail_label_bg_data_24h),
+                            value = bgValue,
+                            valueColor = if (isHighBg) semantic.statusAttention else MaterialTheme.colorScheme.onSurface
+                        )
                     }
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     InfoRow(
@@ -469,6 +586,23 @@ private fun AppDetailContent(
                             stringResource(R.string.detail_launcher_visible)
                         } else {
                             stringResource(R.string.detail_launcher_hidden)
+                        }
+                    )
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    SigningCertificateRow(
+                        fullFingerprint = pkg.signingCertSha256,
+                        copied = copiedFingerprint,
+                        onCopy = {
+                            if (pkg.signingCertSha256.isNotBlank()) {
+                                val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+                                cm?.setPrimaryClip(
+                                    ClipData.newPlainText(
+                                        "SHA-256 Certificate",
+                                        pkg.signingCertSha256
+                                    )
+                                )
+                                copiedFingerprint = true
+                            }
                         }
                     )
                 }
@@ -565,7 +699,8 @@ private fun SpecialAccessRow(
 @Composable
 private fun InfoRow(
     label: String,
-    value: String
+    value: String,
+    valueColor: Color = MaterialTheme.colorScheme.onSurface
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -581,8 +716,77 @@ private fun InfoRow(
         Text(
             text = value,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = valueColor,
             maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+private fun SigningCertificateRow(
+    fullFingerprint: String,
+    copied: Boolean,
+    onCopy: () -> Unit
+) {
+    val hasCert = fullFingerprint.isNotBlank()
+    val shortFingerprint = if (hasCert) {
+        formatShortCertFingerprint(fullFingerprint)
+    } else {
+        stringResource(R.string.detail_signing_cert_unavailable)
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(10.dp))
+            .then(
+                if (hasCert) {
+                    Modifier.clickable(onClick = onCopy)
+                } else {
+                    Modifier
+                }
+            )
+            .padding(vertical = 4.dp)
+            .testTag("detail_signing_cert_row"),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = stringResource(R.string.detail_label_signing_cert),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            if (hasCert) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Icon(
+                        imageVector = if (copied) Icons.Outlined.Check else Icons.Outlined.ContentCopy,
+                        contentDescription = stringResource(R.string.cd_copy_fingerprint),
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Text(
+                        text = stringResource(
+                            if (copied) R.string.detail_copied else R.string.detail_tap_to_copy
+                        ),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        }
+        Text(
+            text = shortFingerprint,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
     }

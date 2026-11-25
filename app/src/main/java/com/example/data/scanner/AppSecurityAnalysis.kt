@@ -19,6 +19,20 @@ enum class RiskyPermission(val androidPermissions: Set<String>) {
             INSTALL_UNKNOWN_APPS
         )
 
+        val allRiskyAndroidPermissionNames: Set<String> =
+            entries.flatMap { it.androidPermissions }.toSet() + setOf(
+                "android.permission.ACCESS_COARSE_LOCATION",
+                "android.permission.ACCESS_BACKGROUND_LOCATION",
+                "android.permission.PROCESS_OUTGOING_CALLS",
+                "android.permission.READ_PHONE_NUMBERS",
+                "android.permission.ANSWER_PHONE_CALLS",
+                "android.permission.RECEIVE_MMS",
+                "android.permission.RECEIVE_WAP_PUSH"
+            )
+
+        fun isRiskyAndroidPermission(permissionName: String): Boolean =
+            permissionName in allRiskyAndroidPermissionNames
+
         fun parseCsv(csv: String): List<RiskyPermission> {
             if (csv.isBlank()) return emptyList()
             return csv.split(',')
@@ -38,6 +52,7 @@ enum class RiskLevel(val sortOrder: Int) {
 }
 
 sealed interface SuspiciousReason {
+    data object SignatureChanged : SuspiciousReason
     data class Sideloaded(val installerPackageName: String?) : SuspiciousReason
     data class RiskyPermissions(val permissions: List<RiskyPermission>) : SuspiciousReason
     data object HiddenNoLauncher : SuspiciousReason
@@ -53,13 +68,18 @@ data class AppSecurityAssessment(
     val reasons: List<SuspiciousReason>,
     val riskLevel: RiskLevel,
     val riskScore: Int,
-    val isTrusted: Boolean
+    val isTrusted: Boolean,
+    val hasSignatureChanged: Boolean = false
 ) {
     val isSuspicious: Boolean
         get() = reasons.isNotEmpty()
 
+    /**
+     * Signature changes always remain an active warning even if the app was previously trusted,
+     * because a changed signing certificate means the binary is no longer signed by the trusted publisher.
+     */
     val isActiveWarning: Boolean
-        get() = isSuspicious && !isTrusted
+        get() = hasSignatureChanged || (isSuspicious && !isTrusted)
 
     val hasAnySpecialAccess: Boolean
         get() = snapshot.hasAccessibilityAccess ||
@@ -83,28 +103,36 @@ object SecurityEvaluator {
         snapshot: PackageSnapshotEntity,
         trustedPackages: Set<String>,
         ownPackageName: String,
+        signatureChangedPackages: Set<String> = emptySet(),
         nowMillis: Long = System.currentTimeMillis()
     ): AppSecurityAssessment {
         val riskyPermissions = RiskyPermission.parseCsv(snapshot.riskyPermissionsCsv)
         val isTrusted = snapshot.packageName in trustedPackages
+        val hasSignatureChange = snapshot.packageName in signatureChangedPackages
 
-        // Never flag P Guard itself as suspicious
-        if (snapshot.packageName == ownPackageName) {
+        // Never flag P Guard itself unless its own signature somehow changed
+        if (snapshot.packageName == ownPackageName && !hasSignatureChange) {
             return AppSecurityAssessment(
                 snapshot = snapshot,
                 riskyPermissions = riskyPermissions,
                 reasons = emptyList(),
                 riskLevel = RiskLevel.NONE,
                 riskScore = 0,
-                isTrusted = isTrusted
+                isTrusted = isTrusted,
+                hasSignatureChanged = false
             )
         }
 
         val reasons = mutableListOf<SuspiciousReason>()
         var score = 0
 
+        // 0. Certificate signature changed (critical — always HIGH risk and sorted at very top)
+        if (hasSignatureChange) {
+            reasons += SuspiciousReason.SignatureChanged
+            score += 100
+        }
+
         // 1. Sideloaded: user app not installed by Google Play or Samsung Galaxy Store
-        //    (pre-installed system apps with null installer are part of the OS image, not sideloaded)
         val isSideloaded = if (snapshot.isSystemApp) {
             snapshot.installerPackageName != null && !isOfficialStoreInstaller(snapshot.installerPackageName)
         } else {
@@ -115,7 +143,7 @@ object SecurityEvaluator {
             score += 2
         }
 
-        // 2. Holds risky permissions (flag user apps; system apps are not suspicious merely for OS permissions)
+        // 2. Holds risky permissions (flag user apps)
         if (!snapshot.isSystemApp && riskyPermissions.isNotEmpty()) {
             reasons += SuspiciousReason.RiskyPermissions(riskyPermissions)
             score += if (riskyPermissions.size >= 3) 2 else 1
@@ -127,7 +155,7 @@ object SecurityEvaluator {
             score += 2
         }
 
-        // 4. Special sensitive access enabled (Accessibility, Device Admin, or Notification Listener)
+        // 4. Special sensitive access enabled
         if (snapshot.hasAccessibilityAccess) {
             reasons += SuspiciousReason.AccessibilityEnabled
             score += if (snapshot.isSystemApp) 1 else 3
@@ -149,9 +177,7 @@ object SecurityEvaluator {
             score += 3
         }
 
-        // Pre-installed system components with only standard OS services shouldn't spam Suspicious list
-        // unless they were updated from an unofficial installer; they still show in Sensitive Access.
-        val effectiveReasons = if (snapshot.isSystemApp && !isSideloaded) {
+        val effectiveReasons = if (snapshot.isSystemApp && !isSideloaded && !hasSignatureChange) {
             emptyList()
         } else {
             reasons
@@ -159,7 +185,7 @@ object SecurityEvaluator {
 
         val riskLevel = when {
             effectiveReasons.isEmpty() -> RiskLevel.NONE
-            score >= 5 || effectiveReasons.size >= 3 -> RiskLevel.HIGH
+            hasSignatureChange || score >= 5 || effectiveReasons.size >= 3 -> RiskLevel.HIGH
             score >= 3 || effectiveReasons.size == 2 -> RiskLevel.MEDIUM
             else -> RiskLevel.LOW
         }
@@ -170,7 +196,8 @@ object SecurityEvaluator {
             reasons = effectiveReasons,
             riskLevel = riskLevel,
             riskScore = if (effectiveReasons.isEmpty()) 0 else score,
-            isTrusted = isTrusted
+            isTrusted = isTrusted,
+            hasSignatureChanged = hasSignatureChange
         )
     }
 }

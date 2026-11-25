@@ -7,10 +7,16 @@
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
 
-    <!-- Special access granted by user in Settings to inspect recently active apps -->
+    <!-- Special access granted by user in Settings to inspect recently active apps & data usage -->
     <uses-permission
         android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
+
+    <!-- Normal install-time permission used to check if a VPN transport is active -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Runtime permission on Android 13+ for background scan security alerts -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <!-- Strictly offline: ensure no transitive library injects INTERNET permission -->
     <uses-permission
@@ -38,6 +44,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>

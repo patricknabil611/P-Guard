@@ -11,6 +11,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.provider.Settings
 import android.view.accessibility.AccessibilityManager
+import java.security.MessageDigest
 
 interface PackageScanner {
     val ownPackageName: String
@@ -28,12 +29,19 @@ class DevicePackageScanner(
         val packageManager = context.packageManager
 
         val installedPackages = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val flags = PackageManager.GET_PERMISSIONS.toLong() or
+                PackageManager.GET_SIGNING_CERTIFICATES.toLong()
+            packageManager.getInstalledPackages(PackageManager.PackageInfoFlags.of(flags))
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            @Suppress("DEPRECATION")
             packageManager.getInstalledPackages(
-                PackageManager.PackageInfoFlags.of(PackageManager.GET_PERMISSIONS.toLong())
+                PackageManager.GET_PERMISSIONS or PackageManager.GET_SIGNING_CERTIFICATES
             )
         } else {
             @Suppress("DEPRECATION")
-            packageManager.getInstalledPackages(PackageManager.GET_PERMISSIONS)
+            packageManager.getInstalledPackages(
+                PackageManager.GET_PERMISSIONS or PackageManager.GET_SIGNATURES
+            )
         }
 
         val launcherPackages = queryLauncherPackages(packageManager)
@@ -64,8 +72,10 @@ class DevicePackageScanner(
                     (appInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
                 )
 
+            val grantedPermissions = extractGrantedPermissions(pkg)
             val riskyPermissions = extractRiskyPermissions(pkg)
             val hasOverlay = RiskyPermission.OVERLAY in riskyPermissions
+            val certSha256 = extractSigningCertSha256(pkg)
 
             ScannedPackageInfo(
                 packageName = pkg.packageName,
@@ -81,9 +91,50 @@ class DevicePackageScanner(
                 hasAccessibilityAccess = pkg.packageName in accessibilityPackages,
                 isDeviceAdmin = pkg.packageName in deviceAdminPackages,
                 hasNotificationListener = pkg.packageName in notificationListenerPackages,
-                hasOverlayPermission = hasOverlay
+                hasOverlayPermission = hasOverlay,
+                signingCertSha256 = certSha256,
+                grantedPermissions = grantedPermissions
             )
         }
+    }
+
+    private fun extractSigningCertSha256(pkg: PackageInfo): String {
+        return try {
+            val rawCertBytes: ByteArray? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                val signingInfo = pkg.signingInfo
+                val signers = when {
+                    signingInfo == null -> null
+                    signingInfo.hasMultipleSigners() -> signingInfo.apkContentsSigners
+                    else -> signingInfo.signingCertificateHistory
+                }
+                signers?.firstOrNull()?.toByteArray()
+            } else {
+                @Suppress("DEPRECATION")
+                pkg.signatures?.firstOrNull()?.toByteArray()
+            }
+
+            if (rawCertBytes == null || rawCertBytes.isEmpty()) {
+                ""
+            } else {
+                val digest = MessageDigest.getInstance("SHA-256").digest(rawCertBytes)
+                digest.joinToString(":") { byte -> "%02X".format(byte) }
+            }
+        } catch (_: Exception) {
+            ""
+        }
+    }
+
+    private fun extractGrantedPermissions(pkg: PackageInfo): List<String> {
+        val requested = pkg.requestedPermissions ?: return emptyList()
+        val flags = pkg.requestedPermissionsFlags ?: return emptyList()
+        val granted = mutableListOf<String>()
+        for (i in requested.indices) {
+            val perm = requested[i] ?: continue
+            if (i < flags.size && (flags[i] and PackageInfo.REQUESTED_PERMISSION_GRANTED) != 0) {
+                granted += perm
+            }
+        }
+        return granted.distinct().sorted()
     }
 
     private fun queryLauncherPackages(packageManager: PackageManager): Set<String> {
@@ -185,8 +236,6 @@ class DevicePackageScanner(
 
         return RiskyPermission.entries.filter { risky ->
             if (risky in RiskyPermission.specialDeclarationPermissions) {
-                // Special app-op permissions (SYSTEM_ALERT_WINDOW, REQUEST_INSTALL_PACKAGES)
-                // often do not set REQUESTED_PERMISSION_GRANTED; flag when declared or granted.
                 risky.androidPermissions.any { it in grantedSet || it in declaredSet }
             } else {
                 risky.androidPermissions.any { it in grantedSet }

@@ -37,6 +37,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -44,9 +46,12 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -55,12 +60,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.R
 import com.example.data.scanner.AppSecurityAssessment
 import com.example.data.scanner.RiskLevel
+import com.example.security.BiometricAuthHelper
 import com.example.ui.common.AppPackageIcon
 import com.example.ui.common.ListSearchAndSortBar
 import com.example.ui.common.RiskLevelBadge
 import com.example.ui.common.SuspiciousReasonChips
 import com.example.ui.common.formatScanDateTime
 import com.example.ui.theme.PGuardTheme
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,10 +78,17 @@ fun SuspiciousAppsScreen(
     onOpenTrustedApps: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val trustTitle = stringResource(R.string.biometric_trust_app_title)
+    val biometricUnavailableMsg = stringResource(R.string.biometric_unavailable_message)
+    val biometricFailedMsg = stringResource(R.string.biometric_auth_failed)
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         contentWindowInsets = WindowInsets.safeDrawing,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -194,10 +208,32 @@ fun SuspiciousAppsScreen(
                                 assessment = assessment,
                                 onOpenDetail = { onOpenAppDetail(assessment.snapshot.packageName) },
                                 onMarkTrusted = {
-                                    viewModel.onMarkTrusted(
-                                        assessment.snapshot.packageName,
-                                        assessment.snapshot.appName
-                                    )
+                                    val activity = BiometricAuthHelper.findFragmentActivity(context)
+                                    if (activity == null || !BiometricAuthHelper.canAuthenticate(context)) {
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(biometricUnavailableMsg)
+                                        }
+                                    } else {
+                                        BiometricAuthHelper.authenticate(
+                                            activity = activity,
+                                            title = trustTitle,
+                                            subtitle = context.getString(
+                                                R.string.biometric_trust_app_subtitle,
+                                                assessment.snapshot.appName
+                                            ),
+                                            onSuccess = {
+                                                viewModel.onMarkTrusted(
+                                                    assessment.snapshot.packageName,
+                                                    assessment.snapshot.appName
+                                                )
+                                            },
+                                            onFailure = {
+                                                scope.launch {
+                                                    snackbarHostState.showSnackbar(biometricFailedMsg)
+                                                }
+                                            }
+                                        )
+                                    }
                                 }
                             )
                         }

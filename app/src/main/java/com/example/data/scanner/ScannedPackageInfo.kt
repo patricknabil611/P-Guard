@@ -14,5 +14,7 @@ data class ScannedPackageInfo(
     val hasAccessibilityAccess: Boolean = false,
     val isDeviceAdmin: Boolean = false,
     val hasNotificationListener: Boolean = false,
-    val hasOverlayPermission: Boolean = false
+    val hasOverlayPermission: Boolean = false,
+    val signingCertSha256: String = "",
+    val grantedPermissions: List<String> = emptyList()
 )

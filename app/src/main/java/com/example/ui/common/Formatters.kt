@@ -77,6 +77,46 @@ fun formatForegroundDuration(durationMillis: Long): String {
     }
 }
 
+fun formatBytes(bytes: Long): String {
+    if (bytes <= 0L) return "0 B"
+    val kb = 1024.0
+    val mb = kb * 1024.0
+    val gb = mb * 1024.0
+    return when {
+        bytes >= gb -> String.format(Locale.US, "%.2f GB", bytes / gb)
+        bytes >= mb -> String.format(Locale.US, "%.1f MB", bytes / mb)
+        bytes >= kb -> String.format(Locale.US, "%.0f KB", bytes / kb)
+        else -> "$bytes B"
+    }
+}
+
+fun formatShortCertFingerprint(sha256: String): String {
+    val clean = sha256.trim()
+    if (clean.isEmpty()) return ""
+    val pairs = clean.split(':')
+    if (pairs.size >= 10) {
+        return "${pairs.take(4).joinToString(":")} … ${pairs.takeLast(4).joinToString(":")}"
+    }
+    return if (clean.length > 24) {
+        "${clean.take(11)} … ${clean.takeLast(11)}"
+    } else {
+        clean
+    }
+}
+
+fun formatShortPermissionName(androidPermission: String): String {
+    val raw = androidPermission.substringAfterLast('.')
+    return raw.split('_')
+        .filter { it.isNotBlank() }
+        .joinToString(" ") { part ->
+            when (part.uppercase(Locale.US)) {
+                "SMS", "MMS", "WAP", "GPS", "NFC", "WIFI", "VPN", "VOIP", "SIP", "ID", "UWB" ->
+                    part.uppercase(Locale.US)
+                else -> part.lowercase(Locale.US).replaceFirstChar { it.titlecase(Locale.US) }
+            }
+        }
+}
+
 @Composable
 fun formatInstallerSource(installerPackageName: String?, isSystemApp: Boolean): String {
     if (installerPackageName.isNullOrBlank()) {

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.data.repository.DeviceStatusRepository
 import com.example.data.repository.SecurityScanRepository
+import com.example.data.scanner.AppBackgroundDataUsage
 import com.example.data.scanner.AppSecurityAssessment
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -18,6 +19,7 @@ data class AppDetailUiState(
     val assessment: AppSecurityAssessment? = null,
     val hasUsageAccess: Boolean = false,
     val lastUsedMillis: Long? = null,
+    val backgroundData24h: AppBackgroundDataUsage? = null,
     val isLoading: Boolean = true
 )
 
@@ -27,18 +29,20 @@ class AppDetailViewModel(
     private val deviceStatusRepository: DeviceStatusRepository
 ) : ViewModel() {
 
-    private val usageInfo = MutableStateFlow<Pair<Boolean, Long?>>(false to null)
+    private val usageAndDataInfo =
+        MutableStateFlow<Triple<Boolean, Long?, AppBackgroundDataUsage?>>(Triple(false, null, null))
 
     val uiState: StateFlow<AppDetailUiState> = combine(
         scanRepository.observeAssessmentForPackage(packageName),
-        usageInfo
+        usageAndDataInfo
     ) { assessment, usage ->
-        val (hasUsageAccess, lastUsedMillis) = usage
+        val (hasUsageAccess, lastUsedMillis, bgData24h) = usage
         AppDetailUiState(
             packageName = packageName,
             assessment = assessment,
             hasUsageAccess = hasUsageAccess,
             lastUsedMillis = lastUsedMillis,
+            backgroundData24h = bgData24h,
             isLoading = false
         )
     }.stateIn(
@@ -53,14 +57,14 @@ class AppDetailViewModel(
 
     fun refreshUsageInfo() {
         viewModelScope.launch {
-            usageInfo.value = deviceStatusRepository.queryLastUsedForPackage(packageName)
+            usageAndDataInfo.value = deviceStatusRepository.queryLastUsedAndDataForPackage(packageName)
         }
     }
 
     fun onToggleTrusted() {
         val current = uiState.value.assessment ?: return
         viewModelScope.launch {
-            if (current.isTrusted) {
+            if (current.isTrusted && !current.hasSignatureChanged) {
                 scanRepository.removeTrustedApp(current.snapshot.packageName)
             } else {
                 scanRepository.markAppTrusted(

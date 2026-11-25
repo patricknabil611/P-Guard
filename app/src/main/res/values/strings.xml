@@ -269,4 +269,277 @@
     <string name="filter_user_apps">User apps</string>
     <string name="filter_system_apps">System</string>
     <string name="scan_error_message">Could not complete scan. Tap Scan again to retry.</string>
+
+    <!-- Phase 4: Signature Change -->
+    <string name="reason_signature_changed">Signature changed</string>
+    <string name="detail_label_signing_cert">Signing certificate (SHA-256)</string>
+    <string name="detail_signing_cert_unavailable">Unavailable</string>
+    <string name="detail_tap_to_copy">Tap to copy</string>
+    <string name="detail_copied">Copied</string>
+    <string name="detail_signature_changed_banner">This app\'s signing certificate changed since a previous scan. Verify the source before trusting it.</string>
+    <string name="detail_label_bg_data_24h">Background data (24h)</string>
+    <string name="detail_bg_data_split">%1$s (%2$s mobile · %3$s Wi-Fi)</string>
+    <string name="detail_bg_data_none">0 B</string>
+
+    <!-- Phase 4: Permission Changes -->
+    <string name="module_permission_changes_title">Permission changes</string>
+    <string name="module_permission_changes_empty">No new permissions granted since last scan</string>
+    <string name="module_permission_changes_single">1 app gained new permissions</string>
+    <string name="module_permission_changes_plural">%1$d apps gained new permissions</string>
+    <string name="badge_changes_count">%1$d new</string>
+    <string name="badge_no_changes">0 new</string>
+    <string name="permission_changes_screen_title">Permission changes</string>
+    <string name="empty_permission_changes_title">No permission changes detected</string>
+    <string name="empty_permission_changes_body">When an existing app gains newly granted permissions between scans, it will appear here with risky permissions highlighted.</string>
+    <string name="meta_gained_permissions_single">1 new permission granted</string>
+    <string name="meta_gained_permissions_plural">%1$d new permissions granted</string>
+
+    <!-- Phase 4: Keyboards -->
+    <string name="module_keyboards_title">Keyboards</string>
+    <string name="module_keyboards_all_known">%1$d enabled · All from known publishers</string>
+    <string name="module_keyboards_third_party_single">1 third-party keyboard enabled</string>
+    <string name="module_keyboards_third_party_plural">%1$d third-party keyboards enabled</string>
+    <string name="badge_keyboard_third_party">%1$d 3rd-party</string>
+    <string name="badge_keyboard_known">Known</string>
+    <string name="keyboards_screen_title">Keyboards</string>
+    <string name="action_open_keyboard_settings">Open keyboard settings</string>
+    <string name="keyboard_third_party_warning">Keyboards can see everything you type, including passwords.</string>
+    <string name="badge_default_keyboard">Default</string>
+    <string name="keyboard_publisher_google">Known · Google</string>
+    <string name="keyboard_publisher_samsung">Known · Samsung</string>
+    <string name="keyboard_publisher_microsoft">Known · Microsoft</string>
+    <string name="keyboard_publisher_third_party">Third-party</string>
+    <string name="empty_keyboards_title">No enabled keyboards found</string>
+    <string name="empty_keyboards_body">No input methods were reported by the system.</string>
+
+    <!-- Phase 4: Background Data Usage -->
+    <string name="module_data_usage_title">Data usage</string>
+    <string name="module_data_usage_needs_access">Grant Usage Access to inspect background data</string>
+    <string name="module_data_usage_flagged_single">1 untrusted app used &gt;50 MB in background</string>
+    <string name="module_data_usage_flagged_plural">%1$d untrusted apps used &gt;50 MB in background</string>
+    <string name="module_data_usage_ok_count">%1$d apps active in background (24h)</string>
+    <string name="module_data_usage_empty">No background data recorded in the last 24h</string>
+    <string name="badge_high_data_count">%1$d high</string>
+    <string name="badge_data_ok">Normal</string>
+    <string name="data_usage_screen_title">Data usage</string>
+    <string name="data_window_24h">Last 24 hours</string>
+    <string name="data_window_7d">Last 7 days</string>
+    <string name="data_usage_permission_body">P Guard uses Android\'s Usage Access permission to inspect per-app background mobile and Wi-Fi data usage — strictly on your phone.</string>
+    <string name="sort_most_data">Most data</string>
+    <string name="meta_mobile_data">Mobile: %1$s</string>
+    <string name="meta_wifi_data">Wi-Fi: %1$s</string>
+    <string name="badge_high_bg_data">&gt;50 MB bg</string>
+    <string name="data_high_usage_warning">Untrusted app used more than 50 MB in the background.</string>
+    <string name="empty_data_usage_title">No background data recorded</string>
+    <string name="empty_data_usage_body">No installed apps reported background mobile or Wi-Fi traffic in the selected period.</string>
+
+    <!-- Phase 4: Root Detection & Security Score -->
+    <string name="security_score_screen_title">Security score</string>
+    <string name="security_score_label">Security score</string>
+    <string name="security_score_out_of">of 100</string>
+    <string name="security_score_tap_hint">Tap to view 9-point security checklist</string>
+    <string name="security_score_good">Strong security posture</string>
+    <string name="security_score_fair">Some items need review</string>
+    <string name="security_score_poor">Critical risks need attention</string>
+    <string name="section_root_status">Device integrity</string>
+    <string name="section_security_checklist">Security checklist</string>
+    <string name="root_status_not_rooted">Not rooted</string>
+    <string name="root_status_not_rooted_body">No su binaries, root managers, test-keys, or writable /system partition detected.</string>
+    <string name="root_status_detected">Root detected</string>
+    <string name="root_status_detected_body">Root indicators were found on this device. Apps with root can bypass Android sandboxing.</string>
+    <string name="root_trigger_su_binary">su binary found</string>
+    <string name="root_trigger_root_manager">Root manager installed</string>
+    <string name="root_trigger_test_keys">test-keys build</string>
+    <string name="root_trigger_writable_system">Writable /system</string>
+    <string name="action_fix">Fix</string>
+
+    <!-- Security Score 9-item checklist -->
+    <string name="check_screen_lock_title">Screen lock</string>
+    <string name="check_screen_lock_pass">PIN, pattern, or password lock is enabled.</string>
+    <string name="check_screen_lock_fail">No secure screen lock is configured.</string>
+
+    <string name="check_security_patch_title">Android security patch</string>
+    <string name="check_security_patch_pass">Patch %1$s is up to date (&lt;3 months old).</string>
+    <string name="check_security_patch_warn">Patch %1$s is 3–6 months old — check for updates.</string>
+    <string name="check_security_patch_fail">Patch %1$s is over 6 months old.</string>
+    <string name="check_security_patch_unknown">Security patch level could not be verified.</string>
+
+    <string name="check_unknown_installers_title">Install unknown apps</string>
+    <string name="check_unknown_installers_pass">No untrusted apps are allowed to install APKs.</string>
+    <string name="check_unknown_installers_warn_single">1 untrusted app can install APKs from unknown sources.</string>
+    <string name="check_unknown_installers_warn_plural">%1$d untrusted apps can install APKs from unknown sources.</string>
+
+    <string name="check_user_ca_title">User-installed CA certificates</string>
+    <string name="check_user_ca_pass">No user-installed root certificates present.</string>
+    <string name="check_user_ca_fail_single">1 user CA certificate installed (can intercept HTTPS traffic).</string>
+    <string name="check_user_ca_fail_plural">%1$d user CA certificates installed (can intercept HTTPS traffic).</string>
+
+    <string name="check_vpn_title">VPN connection</string>
+    <string name="check_vpn_on">VPN is on (informational — does not affect score).</string>
+    <string name="check_vpn_off">No VPN currently active (informational).</string>
+    <string name="badge_info">Info</string>
+
+    <string name="check_dev_mode_title">Developer Options &amp; USB Debugging</string>
+    <string name="check_dev_mode_pass">Developer Options and USB Debugging are both off.</string>
+    <string name="check_dev_mode_warn">Developer Options is ON (USB Debugging is off).</string>
+    <string name="check_dev_mode_fail">USB Debugging is ON — disable when not developing.</string>
+
+    <string name="check_root_title">Root status</string>
+    <string name="check_root_pass">Device is not rooted.</string>
+    <string name="check_root_fail_single">Root detected (1 check triggered).</string>
+    <string name="check_root_fail_plural">Root detected (%1$d checks triggered).</string>
+
+    <string name="check_suspicious_title">Suspicious apps</string>
+    <string name="check_suspicious_pass">No untrusted suspicious apps flagged.</string>
+    <string name="check_suspicious_warn_single">1 untrusted suspicious app flagged for review.</string>
+    <string name="check_suspicious_warn_plural">%1$d untrusted suspicious apps flagged for review.</string>
+
+    <string name="check_signature_title">App signing certificates</string>
+    <string name="check_signature_pass">No signing certificate changes detected.</string>
+    <string name="check_signature_fail_single">1 app changed its signing certificate.</string>
+    <string name="check_signature_fail_plural">%1$d apps changed their signing certificates.</string>
+
+    <!-- Phase 4: Privacy Dashboard Shortcut -->
+    <string name="module_privacy_dashboard_title">Camera, mic &amp; location access</string>
+    <string name="module_privacy_dashboard_subtitle">Open Android Privacy Dashboard to see which apps accessed sensors</string>
+    <string name="module_privacy_dashboard_legacy">Requires Android 12+ for Privacy Dashboard. Opens App Settings instead.</string>
+    <string name="badge_open">Open</string>
+    <string name="status_attention_part_sig_change_single">1 signature change</string>
+    <string name="status_attention_part_sig_change_plural">%1$d signature changes</string>
+    <string name="status_attention_part_rooted">Root detected</string>
+    <string name="status_attention_part_perm_changes_single">1 permission change</string>
+    <string name="status_attention_part_perm_changes_plural">%1$d permission changes</string>
+    <string name="status_attention_part_keyboard_single">1 3rd-party keyboard</string>
+    <string name="status_attention_part_keyboard_plural">%1$d 3rd-party keyboards</string>
+    <string name="cd_security_score_ring">Security score %1$d out of 100</string>
+    <string name="cd_copy_fingerprint">Copy full SHA-256 fingerprint</string>
+
+    <!-- Phase 5: Settings, Background Scan, Notifications, History, App Lock, Export -->
+    <string name="cd_open_settings">Open settings</string>
+    <string name="settings_screen_title">Settings</string>
+    <string name="history_screen_title">History</string>
+    <string name="history_detail_screen_title">Scan details</string>
+
+    <!-- Dashboard cards (Phase 5) -->
+    <string name="module_history_title">History</string>
+    <string name="module_history_empty">No saved scans yet</string>
+    <string name="module_history_single">1 scan recorded · Last 90 days kept</string>
+    <string name="module_history_plural">%1$d scans recorded · Last 90 days kept</string>
+    <string name="badge_history_count">%1$d scans</string>
+
+    <string name="notif_prompt_title">Enable security alert notifications</string>
+    <string name="notif_prompt_body">P Guard scans in the background and notifies you only when something important changes, like a new app, certificate change, or risky permission.</string>
+    <string name="action_allow_notifications">Allow notifications</string>
+    <string name="action_dismiss">Not now</string>
+
+    <string name="battery_opt_title">Battery optimization may pause scans</string>
+    <string name="battery_opt_body">Android battery limits can delay automatic background scans. Allow unrestricted battery usage for reliable monitoring.</string>
+    <string name="action_battery_settings">Battery settings</string>
+
+    <!-- Notification channels & alerts -->
+    <string name="channel_security_alerts_name">Security alerts</string>
+    <string name="channel_security_alerts_desc">Important alerts when new apps, signature changes, risky permissions, or USB debugging are detected</string>
+    <string name="channel_scan_updates_name">Scan updates</string>
+    <string name="channel_scan_updates_desc">Low-priority status updates for periodic background scans</string>
+
+    <string name="notif_signature_title">App signing certificate changed</string>
+    <string name="notif_signature_body_single">%1$s has a different signing certificate. Tap to inspect.</string>
+    <string name="notif_signature_body_plural">%1$d apps changed signing certificates (including %2$s).</string>
+
+    <string name="notif_new_app_title">New app installed</string>
+    <string name="notif_new_app_body_single">%1$s was installed on your phone.</string>
+    <string name="notif_new_app_body_plural">%1$d new apps installed (including %2$s).</string>
+
+    <string name="notif_suspicious_title">New suspicious app found</string>
+    <string name="notif_suspicious_body_single">%1$s triggered security risk signals.</string>
+    <string name="notif_suspicious_body_plural">%1$d newly flagged suspicious apps (including %2$s).</string>
+
+    <string name="notif_permission_title">New risky permission granted</string>
+    <string name="notif_permission_body_single">%1$s gained new risky permission access.</string>
+    <string name="notif_permission_body_plural">%1$d apps gained new risky permissions (including %2$s).</string>
+
+    <string name="notif_dev_mode_title">Developer settings turned on</string>
+    <string name="notif_dev_mode_body_adb">USB Debugging is now enabled on your phone.</string>
+    <string name="notif_dev_mode_body_dev">Developer Options was turned on.</string>
+
+    <!-- History screen -->
+    <string name="history_chart_title">Security score (last 30 days)</string>
+    <string name="history_chart_subtitle_empty">Run a couple of scans over time to see your 30-day score trend.</string>
+    <string name="history_chart_subtitle_points">%1$d scans · Latest score %2$d/100</string>
+    <string name="history_retention_note">Scan history is stored locally for 90 days and older entries are deleted automatically.</string>
+    <string name="badge_scan_manual">Manual</string>
+    <string name="badge_scan_background">Background</string>
+    <string name="history_no_changes">No changes detected</string>
+    <string name="empty_history_title">No scan history yet</string>
+    <string name="empty_history_body">Every manual and background scan will be logged here with its security score and detected changes.</string>
+    <string name="history_detail_not_found">This scan entry is no longer available.</string>
+    <string name="history_section_changes">Changes found in this scan</string>
+    <string name="history_section_checklist">Checklist results</string>
+    <string name="history_section_suspicious">Suspicious apps</string>
+    <string name="history_section_hidden">Hidden user apps</string>
+    <string name="history_section_new_apps">New apps</string>
+    <string name="history_section_permission_changes">Permission changes</string>
+    <string name="history_section_dev_mode">Developer mode &amp; integrity</string>
+    <string name="history_none_in_section">None</string>
+
+    <!-- App Lock -->
+    <string name="lock_screen_title">P Guard is locked</string>
+    <string name="lock_screen_subtitle">Authenticate with biometrics or your device PIN/pattern to view security details.</string>
+    <string name="action_unlock">Unlock</string>
+    <string name="biometric_unlock_title">Unlock P Guard</string>
+    <string name="biometric_unlock_subtitle">Verify your identity to access P Guard</string>
+    <string name="biometric_disable_lock_title">Disable App Lock</string>
+    <string name="biometric_disable_lock_subtitle">Authenticate to turn off Lock P Guard</string>
+    <string name="biometric_trust_app_title">Confirm trusted app</string>
+    <string name="biometric_trust_app_subtitle">Authenticate to mark %1$s as trusted</string>
+    <string name="biometric_unavailable_message">Set up a screen lock (PIN, pattern, or biometric) in Android Settings to use authentication.</string>
+    <string name="biometric_auth_failed">Authentication was cancelled or failed.</string>
+
+    <!-- Export Report -->
+    <string name="action_export_report">Export report</string>
+    <string name="action_save_pdf">Save PDF</string>
+    <string name="action_share_pdf">Share</string>
+    <string name="export_success_message">Security report PDF saved.</string>
+    <string name="export_error_message">Could not generate or save the PDF report.</string>
+    <string name="share_report_chooser_title">Share P Guard report</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_section_background_scan">Automatic background scan</string>
+    <string name="settings_scan_interval_label">Scan interval</string>
+    <string name="settings_scan_interval_desc">WorkManager runs quiet local scans on this schedule</string>
+    <string name="interval_3h">3 hours</string>
+    <string name="interval_6h">6 hours</string>
+    <string name="interval_12h">12 hours</string>
+    <string name="interval_24h">24 hours</string>
+    <string name="interval_off">Off</string>
+
+    <string name="settings_section_notifications">Alert notifications</string>
+    <string name="settings_notifications_permission_needed">Notifications are turned off in Android</string>
+    <string name="settings_notif_new_app">New app installed</string>
+    <string name="settings_notif_signature">Signature changed (high priority)</string>
+    <string name="settings_notif_suspicious">New suspicious app found</string>
+    <string name="settings_notif_risky_perm">New risky permission granted</string>
+    <string name="settings_notif_dev_mode">Developer Options or USB Debugging on</string>
+
+    <string name="settings_section_security">App protection</string>
+    <string name="settings_lock_p_guard_title">Lock P Guard</string>
+    <string name="settings_lock_p_guard_desc">Require biometric or PIN after 1 minute in background and hide preview in recents</string>
+    <string name="settings_trusted_apps_title">Trusted apps</string>
+    <string name="settings_trusted_apps_desc">Manage apps muted from suspicious warnings</string>
+
+    <string name="settings_section_data">Reports &amp; data</string>
+    <string name="settings_export_report_title">Export report</string>
+    <string name="settings_export_report_desc">Generate a PDF summary of your latest security scan</string>
+    <string name="settings_clear_history_title">Clear scan history</string>
+    <string name="settings_clear_history_desc">Remove all saved timeline entries from this phone</string>
+    <string name="dialog_clear_history_title">Clear scan history?</string>
+    <string name="dialog_clear_history_body">This permanently removes all saved scan timeline entries and 30-day score history. Your trusted apps list stays intact.</string>
+    <string name="action_clear">Clear</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="history_cleared_message">Scan history cleared.</string>
+
+    <string name="settings_section_about">About</string>
+    <string name="settings_about_version">Version %1$s (build %2$d)</string>
+    <string name="settings_about_offline">100% on-device · No internet permission · No telemetry</string>
+    <string name="settings_about_repo">github.com/patricknabil611/P-Guard</string>
 </resources>
